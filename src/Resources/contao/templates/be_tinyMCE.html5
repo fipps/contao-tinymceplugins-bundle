@@ -1,0 +1,124 @@
+<?php
+
+namespace Contao;
+
+if ($GLOBALS['TL_CONFIG']['useRTE']):
+
+    $external = '';
+    If (is_array($GLOBALS['TinyMCE']['external'])) {
+        $external = array();
+        foreach ($GLOBALS['TinyMCE']['external'] as $arr) {
+            foreach ($arr as $key => $val) {
+                $external[] = sprintf('"%s":"%s"', $key, $val);
+            }
+        }
+        $external = implode(',', $external);
+    }
+
+    // Toolbar
+    if (is_array($GLOBALS['TinyMCE']['toolbar'])) {
+        $toolbar = array();
+        foreach ($GLOBALS['TinyMCE']['toolbar'] as $val) {
+            $toolbar[] = sprintf('"%s"', $val);
+        }
+
+        $toolbar = implode(',', $toolbar);
+    }
+
+    // Menu
+    if (is_array($GLOBALS['TinyMCE']['menu'])) {
+        $menu = array();
+        foreach ($GLOBALS['TinyMCE']['menu'] as $key => $arr) {
+            $var = array();
+            foreach ($arr as $title => $items) {
+                $var[] = sprintf('{title : "%s"  , items : "%s"}', $title, $items);
+            }
+            $var    = implode('', $var);
+            $menu[] = sprintf('%s:%s', $key, $var);
+        }
+        $menu = implode(',', $menu);
+    }
+
+    // Style Formats
+    if (is_array($GLOBALS['TinyMCE']['style_formats'])) {
+        $style_formats = array();
+        foreach ($GLOBALS['TinyMCE']['style_formats'] as $title => $items) {
+            $arr = array();
+            foreach ($items as $item) {
+                $var = array();
+                foreach ($item as $key => $val) {
+                    $var[] = sprintf('%s : "%s"', $key, $val);
+                }
+                $var   = implode(',', $var);
+                $arr[] = sprintf('{%s}', $var);
+            }
+            $arr             = implode(',', $arr);
+            $style_formats[] = sprintf('{title: "%s", items: [%s]}', $title, $arr);
+        }
+        $style_formats = implode(',', $style_formats);
+    }
+
+    //Content CSS
+    $contentCss = array();
+	if (isset($GLOBALS['TinyMCE']['importcss_file_filter'])){
+    	$contentCss[] = TL_ASSETS_URL.'assets/css/'.$GLOBALS['TinyMCE']['importcss_file_filter'];
+	}
+    if (isset($GLOBALS['TinyMCE']['content_css'])){
+        $contentCss[] = TL_ASSETS_URL.'assets/css/'.$GLOBALS['TinyMCE']['content_css'];
+    }
+    $contentCss = implode(',', $contentCss);
+
+
+
+    ?>
+	<script>window.tinymce || document.write('<script src="<?= TL_ASSETS_URL ?>assets/tinymce4/js/tinymce.min.js">\x3C/script>')</script>
+	<script>
+        setTimeout(function () {
+            window.tinymce && tinymce.init({
+                skin: 'contao',
+                selector: '#<?= $this->selector ?>',
+                language: '<?= Backend::getTinyMceLanguage() ?>',
+                element_format: 'html',
+                document_base_url: '<?= Environment::get('base') ?>',
+                entities: '160,nbsp,60,lt,62,gt,173,shy',
+                branding: false,
+                setup: function (editor) {
+                    editor.getElement().removeAttribute('required');
+                },
+                init_instance_callback: function (editor) {
+                    if (document.activeElement && document.activeElement.id && document.activeElement.id == editor.id) {
+                        editor.editorManager.get(editor.id).focus();
+                    }
+                    editor.on('focus', function () {
+                        Backend.getScrollOffset();
+                    });
+                },
+                file_browser_callback: function (field_name, url, type, win) {
+                    Backend.openModalBrowser(field_name, url, type, win);
+                },
+                file_browser_callback_types: <?= json_encode($this->fileBrowserTypes) ?>,
+                plugins: 'autosave charmap code fullscreen image importcss link lists paste searchreplace stripnbsp tabfocus table visualblocks',
+                external_plugins: {
+                    <?= $external ?>
+                },
+                browser_spellcheck: true,
+                tabfocus_elements: ':prev,:next',
+
+                <?php if (isset($GLOBALS['TinyMCE']['importcss_file_filter'])): ?>
+                importcss_append: true,
+                importcss_file_filter: "<?= TL_ASSETS_URL ?>assets/css/<?= $GLOBALS['TinyMCE']['importcss_file_filter'] ?>",
+                importcss_groups: [{title: "<?= $GLOBALS['TL_LANG']['MSC']['TinyMCE_ThemesFormats'] ?>"}],
+                <?php endif; ?>
+	            <?php if (isset($contentCss) && $contentCss != ''): ?>
+                content_css: "<?= $contentCss ?>",
+	            <?php endif; ?>
+                extended_valid_elements: "<?= (isset($GLOBALS['TinyMCE']['extended_valid_elements'])) ? $GLOBALS['TinyMCE']['extended_valid_elements'] : 'q[cite|class|title],article,section,hgroup,figure,figcaption' ?>",
+
+                menubar: "<?= (isset($GLOBALS['TinyMCE']['menubar'])) ? $GLOBALS['TinyMCE']['menubar'] : 'file edit insert view format table' ?>",
+                <?php if (isset($menu)): ?>menu: {<?= $menu ?>},<?php endif; ?>
+                <?php if (isset($style_formats)): ?>style_formats: [<?= $style_formats ?>],<?php endif; ?>
+                toolbar: [<?= (isset($toolbar)) ? $toolbar : "'link unlink | image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | undo redo | code'" ?>]
+            });
+        }, 0);
+	</script>
+<?php endif; ?>
