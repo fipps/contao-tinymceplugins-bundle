@@ -14,7 +14,8 @@ namespace Fipps\TinymcepluginsBundle;
 class Hooks
 {
 
-    public function parseBackendTemplate($strBuffer, $strTemplate) {
+    public function parseBackendTemplate($strBuffer, $strTemplate)
+    {
 
         return $strBuffer;
     }
