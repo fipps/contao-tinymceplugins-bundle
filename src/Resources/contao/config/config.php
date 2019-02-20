@@ -77,16 +77,24 @@ $GLOBALS['TinyMCE']['style_formats']['Blocks']  = array(
         'title'  => 'Blockquote',
         'format' => 'blockquote',
     ),
+//    array(
+//        'title'  => 'Address',
+//        'format' => 'address',
+//    ),
     array(
-        'title'  => 'Address',
-        'format' => 'address',
+        'title'  => 'Cite',
+        'format' => 'cite',
+    ),
+    array(
+        'title'  => 'Footer',
+        'format' => 'footer',
     ),
     //        array(
     //            'title'  => 'Pre',
     //            'format' => 'pre',
     //        ),
 );
-//$GLOBALS['TinyMCE']['style_formats']['Inline']    = array(
+$GLOBALS['TinyMCE']['style_formats']['Inline']    = array(
 //    array(
 //        'title'  => 'Bold',
 //        'icon'   => "bold",
@@ -122,15 +130,15 @@ $GLOBALS['TinyMCE']['style_formats']['Blocks']  = array(
 //        'icon'   => 'code',
 //        'format' => 'code',
 //    ),
-//    array(
-//        'title'  => 'small',
-//        'inline' => 'small',
-//    ),
-//    array(
-//        'title'  => 'mark',
-//        'inline' => 'mark',
-//    ),
-//);
+    array(
+        'title'  => 'small',
+        'inline' => 'small',
+    ),
+    array(
+        'title'  => 'mark',
+        'inline' => 'mark',
+    ),
+);
 //$GLOBALS['TinyMCE']['style_formats']['Alignment'] = array(
 //    array(
 //        'title'  => 'Left',
