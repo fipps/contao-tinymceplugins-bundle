@@ -60,14 +60,16 @@ if ($GLOBALS['TL_CONFIG']['useRTE']):
 
     //Content CSS
     $contentCss = array();
-	if (isset($GLOBALS['TinyMCE']['importcss_file_filter'])){
-    	$contentCss[] = TL_ASSETS_URL.'assets/css/'.$GLOBALS['TinyMCE']['importcss_file_filter'];
-	}
-    if (isset($GLOBALS['TinyMCE']['content_css'])){
+    if (isset($GLOBALS['TinyMCE']['bootstrap_css_file'])) {
+        $contentCss[] = $GLOBALS['TinyMCE']['bootstrap_css_file'];
+    }
+    if (isset($GLOBALS['TinyMCE']['importcss_file_filter'])) {
+        $contentCss[] = TL_ASSETS_URL.'assets/css/'.$GLOBALS['TinyMCE']['importcss_file_filter'];
+    }
+    if (isset($GLOBALS['TinyMCE']['content_css'])) {
         $contentCss[] = TL_ASSETS_URL.'assets/css/'.$GLOBALS['TinyMCE']['content_css'];
     }
     $contentCss = implode(',', $contentCss);
-
 
 
     ?>
@@ -104,14 +106,20 @@ if ($GLOBALS['TL_CONFIG']['useRTE']):
                 browser_spellcheck: true,
                 tabfocus_elements: ':prev,:next',
 
-                <?php if (isset($GLOBALS['TinyMCE']['importcss_file_filter'])): ?>
+                <?php if (isset($GLOBALS['TinyMCE']['bootstrap_css_file'])): ?>
                 importcss_append: true,
-                importcss_file_filter: "<?= TL_ASSETS_URL ?>assets/css/<?= $GLOBALS['TinyMCE']['importcss_file_filter'] ?>",
+                importcss_file_filter: "<?= $GLOBALS['TinyMCE']['bootstrap_css_file'] ?>",
+                importcss_groups: [{title: "Bootstrap"}],
+                importcss_selector_filter: /^((?!(\.list-.*|.text-hide)).)*$/,
+                <?php elseif (isset($GLOBALS['TinyMCE']['importcss_file_filter'])) : ?>
+                importcss_append: true,
+                importcss_file_filter: "<?= sprintf("@import url('%s/assets/css/%s');", TL_ASSETS_URL, $GLOBALS['TinyMCE']['importcss_file_filter']); ?>",
                 importcss_groups: [{title: "<?= $GLOBALS['TL_LANG']['MSC']['TinyMCE_ThemesFormats'] ?>"}],
                 <?php endif; ?>
-	            <?php if (isset($contentCss) && $contentCss != ''): ?>
+
+                <?php if (isset($contentCss) && $contentCss != ''): ?>
                 content_css: "<?= $contentCss ?>",
-	            <?php endif; ?>
+                <?php endif; ?>
                 extended_valid_elements: "<?= (isset($GLOBALS['TinyMCE']['extended_valid_elements'])) ? $GLOBALS['TinyMCE']['extended_valid_elements'] : 'q[cite|class|title],article,section,hgroup,figure,figcaption' ?>",
 
                 menubar: "<?= (isset($GLOBALS['TinyMCE']['menubar'])) ? $GLOBALS['TinyMCE']['menubar'] : 'file edit insert view format table' ?>",
