@@ -73,60 +73,93 @@ if ($GLOBALS['TL_CONFIG']['useRTE']):
 
 
     ?>
-	<script>window.tinymce || document.write('<script src="<?= TL_ASSETS_URL ?>assets/tinymce4/js/tinymce.min.js">\x3C/script>')</script>
 	<script>
-        setTimeout(function () {
-            window.tinymce && tinymce.init({
-                skin: 'contao',
-                selector: '#<?= $this->selector ?>',
-                language: '<?= Backend::getTinyMceLanguage() ?>',
-                element_format: 'html',
-                document_base_url: '<?= Environment::get('base') ?>',
-                entities: '160,nbsp,60,lt,62,gt,173,shy',
-                branding: false,
-                setup: function (editor) {
-                    editor.getElement().removeAttribute('required');
-                },
-                init_instance_callback: function (editor) {
-                    if (document.activeElement && document.activeElement.id && document.activeElement.id == editor.id) {
-                        editor.editorManager.get(editor.id).focus();
-                    }
-                    editor.on('focus', function () {
-                        Backend.getScrollOffset();
-                    });
-                },
-                file_browser_callback: function (field_name, url, type, win) {
-                    Backend.openModalBrowser(field_name, url, type, win);
-                },
-                file_browser_callback_types: <?= json_encode($this->fileBrowserTypes) ?>,
-                plugins: 'autosave charmap code fullscreen image importcss link lists paste searchreplace stripnbsp tabfocus table visualblocks',
-                external_plugins: {
-                    <?= $external ?>
-                },
-                browser_spellcheck: true,
-                tabfocus_elements: ':prev,:next',
 
-                <?php if (isset($GLOBALS['TinyMCE']['bootstrap_css_file'])): ?>
-                importcss_append: true,
-                importcss_file_filter: "<?= $GLOBALS['TinyMCE']['bootstrap_css_file'] ?>",
-                importcss_groups: [{title: "Bootstrap"}],
-                importcss_selector_filter: /^((?!(\.list-.*|.text-hide)).)*$/,
-                <?php elseif (isset($GLOBALS['TinyMCE']['importcss_file_filter'])) : ?>
-                importcss_append: true,
-                importcss_file_filter: "<?= sprintf("@import url('%s/assets/css/%s');", TL_ASSETS_URL, $GLOBALS['TinyMCE']['importcss_file_filter']); ?>",
-                importcss_groups: [{title: "<?= $GLOBALS['TL_LANG']['MSC']['TinyMCE_ThemesFormats'] ?>"}],
-                <?php endif; ?>
+        (function(){
 
-                <?php if (isset($contentCss) && $contentCss != ''): ?>
-                content_css: "<?= $contentCss ?>",
-                <?php endif; ?>
-                extended_valid_elements: "<?= (isset($GLOBALS['TinyMCE']['extended_valid_elements'])) ? $GLOBALS['TinyMCE']['extended_valid_elements'] : 'q[cite|class|title],article,section,hgroup,figure,figcaption' ?>",
+            var src = "<?= version_compare(VERSION, '4.5', '<') ? TL_ASSETS_URL . 'assets/tinymce4/js/tinymce.min.js' : $this->asset('js/tinymce.min.js', 'contao-components/tinymce4'); ?>";
+            var prevScript = document.querySelector('script[src="'+src+'"]');
 
-                menubar: "<?= (isset($GLOBALS['TinyMCE']['menubar'])) ? $GLOBALS['TinyMCE']['menubar'] : 'file edit insert view format table' ?>",
-                <?php if (isset($menu)): ?>menu: {<?= $menu ?>},<?php endif; ?>
-                <?php if (isset($style_formats)): ?>style_formats: [<?= $style_formats ?>],<?php endif; ?>
-                toolbar: [<?= (isset($toolbar)) ? $toolbar : "'link unlink | image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | undo redo | code'" ?>]
-            });
-        }, 0);
+            var initTiny = function() {
+
+                window.tinymce && tinymce.init({
+                    skin: 'contao',
+                    selector: '#<?= $this->selector ?>',
+                    language: '<?= Backend::getTinyMceLanguage() ?>',
+                    element_format: 'html',
+                    document_base_url: '<?= Environment::get('base') ?>',
+                    entities: '160,nbsp,60,lt,62,gt,173,shy',
+                    branding: false,
+                    setup: function (editor) {
+                        editor.getElement().removeAttribute('required');
+                    },
+                    init_instance_callback: function (editor) {
+                        if (document.activeElement && document.activeElement.id && document.activeElement.id == editor.id) {
+                            editor.editorManager.get(editor.id).focus();
+                        }
+                        editor.on('focus', function () {
+                            Backend.getScrollOffset();
+                        });
+
+                        // trigger custom event for text analysis
+                        var tinyEvent = document.createEvent('Event');
+                        tinyEvent.initEvent('tinyMCEInitialized', true, true);
+                        document.dispatchEvent(tinyEvent);
+                    },
+                    file_browser_callback: function (field_name, url, type, win) {
+                        Backend.openModalBrowser(field_name, url, type, win);
+                    },
+                    file_browser_callback_types: <?= json_encode($this->fileBrowserTypes) ?>,
+                    plugins: 'autosave charmap code fullscreen image importcss link lists paste searchreplace stripnbsp tabfocus table visualblocks',
+                    external_plugins: {
+                        <?= $external ?>
+                    },
+                    browser_spellcheck: true,
+                    tabfocus_elements: ':prev,:next',
+                    paste_as_text: true,
+
+                    <?php if (isset($GLOBALS['TinyMCE']['bootstrap_css_file'])): ?>
+                    importcss_append: true,
+                    importcss_file_filter: "<?= $GLOBALS['TinyMCE']['bootstrap_css_file'] ?>",
+                    importcss_groups: [{title: "Bootstrap"}],
+                    importcss_selector_filter: /^((?!(\.list-.*|.text-hide)).)*$/,
+                    <?php elseif (isset($GLOBALS['TinyMCE']['importcss_file_filter'])) : ?>
+                    importcss_append: true,
+                    importcss_file_filter: "<?= sprintf("@import url('%s/assets/css/%s');", TL_ASSETS_URL, $GLOBALS['TinyMCE']['importcss_file_filter']); ?>",
+                    importcss_groups: [{title: "<?= $GLOBALS['TL_LANG']['MSC']['TinyMCE_ThemesFormats'] ?>"}],
+                    <?php endif; ?>
+
+                    <?php if (isset($contentCss) && $contentCss != ''): ?>
+                    content_css: "<?= $contentCss ?>",
+                    <?php endif; ?>
+                    extended_valid_elements: "<?= (isset($GLOBALS['TinyMCE']['extended_valid_elements'])) ? $GLOBALS['TinyMCE']['extended_valid_elements'] : 'q[cite|class|title],article,section,hgroup,figure,figcaption' ?>",
+
+                    menubar: "<?= (isset($GLOBALS['TinyMCE']['menubar'])) ? $GLOBALS['TinyMCE']['menubar'] : 'file edit insert view format table' ?>",
+                    <?php if (isset($menu)): ?>menu: {<?= $menu ?>},<?php endif; ?>
+                    <?php if (isset($style_formats)): ?>style_formats: [<?= $style_formats ?>],<?php endif; ?>
+                    toolbar: [<?= (isset($toolbar)) ? $toolbar : "'link unlink | image | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | undo redo | code'" ?>]
+                });
+            };
+
+            if( !prevScript ) {
+
+                var script = document.createElement('script');
+                script.src = src;
+                document.getElementsByTagName('head')[0].appendChild(script);
+            }
+
+            var check = window.setInterval(function(){
+
+                if( window.tinymce ) {
+                    window.clearInterval(check);
+                    initTiny();
+                }
+
+            },100);
+        })();
+
 	</script>
+	<style type="text/css">
+		.mce-menu-align.mce-menu-sub > div > .mce-menu-item:nth-last-child(1) { display: none; }
+	</style>
 <?php endif; ?>
