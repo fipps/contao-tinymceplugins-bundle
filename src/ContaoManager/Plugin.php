@@ -15,6 +15,7 @@ use Contao\CoreBundle\ContaoCoreBundle;
 use Contao\ManagerPlugin\Bundle\Config\BundleConfig;
 use Contao\ManagerPlugin\Bundle\BundlePluginInterface;
 use Contao\ManagerPlugin\Bundle\Parser\ParserInterface;
+use numero2\MarketingSuiteBundle\MarketingSuiteBundle;
 
 /**
  * Plugin for the Contao Manager.
@@ -29,7 +30,9 @@ class Plugin implements BundlePluginInterface
     public function getBundles(ParserInterface $parser)
     {
         return [
-            BundleConfig::create(FippsTinymcepluginsBundle::class)->setLoadAfter([ContaoCoreBundle::class])->setReplace(['fipps_tinymceplugins']),
+            BundleConfig::create(FippsTinymcepluginsBundle::class)
+                ->setLoadAfter([ContaoCoreBundle::class, MarketingSuiteBundle::class ])
+                ->setReplace(['fipps_tinymceplugins']),
         ];
     }
 }
