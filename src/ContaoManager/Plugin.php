@@ -29,9 +29,14 @@ class Plugin implements BundlePluginInterface
      */
     public function getBundles(ParserInterface $parser)
     {
+        $classes = [ContaoCoreBundle::class];
+        if (class_exists(MarketingSuiteBundle::class)) {
+            $classes[] = MarketingSuiteBundle::class;
+        }
+
         return [
             BundleConfig::create(FippsTinymcepluginsBundle::class)
-                ->setLoadAfter([ContaoCoreBundle::class, MarketingSuiteBundle::class ])
+                ->setLoadAfter($classes)
                 ->setReplace(['fipps_tinymceplugins']),
         ];
     }
